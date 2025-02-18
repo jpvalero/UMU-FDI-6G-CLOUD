@@ -1,0 +1,8 @@
+logs/
+hyperparameters.json
+__pycache__/
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+results_cpu_memory_eco-efficiency.csv
