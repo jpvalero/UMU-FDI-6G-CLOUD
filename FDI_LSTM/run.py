@@ -25,6 +25,7 @@ NUM_LAYERS = hyperparameters['NUM_LAYERS']
 TRAIN_TEST_SPLIT = hyperparameters['TRAIN_TEST_SPLIT']
 ROOT_FOLDER = hyperparameters['ROOT_FOLDER']
 
+
 # Check if CUDA is available
 if torch.cuda.is_available():
     print("CUDA is available! Using GPU:", torch.cuda.get_device_name(0))
@@ -34,9 +35,9 @@ else:
     device = torch.device("cpu")  # Use CPU
 
 csv_file = os.path.join(ROOT_FOLDER, 'filtered_traffic_data.csv')
-df = pd.read_csv(csv_file)
-df = df[COLUMN]
-df = preprocess(df)
+df = pd.read_csv(csv_file) 
+df = df[COLUMN]  
+df = preprocess(df)  
 
 train_split, test_split = train_test_split(df, TRAIN_TEST_SPLIT)
 train_dataset = LoadPredictionDataset(df, time_step=TIME_STEP, column=COLUMN, start_index=0, population=train_split, device=device)
