@@ -2,6 +2,9 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import matplotlib.pyplot as plt
+import pandas as pd
+import os
+import joblib
 
 class LSTMModel(nn.Module):
     def __init__(self, input_size, hidden_layer_size, num_layers, output_size=1):
@@ -15,42 +18,58 @@ class LSTMModel(nn.Module):
         predictions = self.linear(lstm_out[:, -1, :])
         return predictions
 
-def plot_results(model, dataset, dataloader, time_step, device=None, save_folder="save_folder"):
+def plot_results(model, dataset, dataloader, time_step, device=None, save_folder="save_folder", original_df=None, scaler=None):
     if device is None:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        
+    
     results = torch.zeros(time_step, 1).to(device)
+    
     mses = []
-    loss = nn.MSELoss()
+    loss_fn = torch.nn.MSELoss()
     
-    # Collect all the results
-    for data, ans in dataloader:
-        data = data.to(device)
-        ans = ans.to(device)
-        res = model(data)
-        results = torch.cat((results, res), dim=0)
-        mses.append(loss(res, ans))
+    model.eval()  # Set model to evaluation mode
+    with torch.no_grad():  # No need to compute gradients
+        for data, ans in dataloader:
+            data = data.to(device)
+            ans = ans.to(device)
+            res = model(data)
+            results = torch.cat((results, res), dim=0)
+            mses.append(loss_fn(res, ans))
     
-    # Calculate MSE and print it
-    print(sum(mses) / len(mses))
-    
-    # Remove initial zeros from the results (trim the first `time_step` values)
-    trimmed_results = results[time_step:]  # Remove zeros at the start
-    
-    # Plotting
-    plt.plot(trimmed_results.detach().cpu(), color='r', label='Predicted')
-    plt.plot(dataset.df.values[time_step:], color='b', label='Real')  # Offset real values as well
-    
+    avg_mse = sum(mses) / len(mses)
+    print(f"Mean Squared Error: {avg_mse.item()}")
+
+    plt.figure(figsize=(10, 5))
+    plt.plot(results.detach().cpu().numpy()[time_step:], color='r', label='Predicted')
+    plt.plot(dataset.df.values[time_step:], color='b', label='Real')
     plt.legend()
+    plt.xlabel("Time")
+    plt.ylabel("Value")
+    plt.title("LSTM Predictions vs Real Data")
     plt.tight_layout()
     
-    # Save or show the plot
+    if scaler:
+        results_np = scaler.inverse_transform(results.detach().cpu().numpy()[time_step:])
+        result_df = pd.DataFrame(data= results_np, columns=['Predicted'])
+    else:
+        result_df = pd.DataFrame(data= results.detach().cpu().numpy()[time_step:], columns=['Predicted'])
+
     if save_folder is None:
         plt.show()
     else:
-        test_file = save_folder + '/test.png'
+        os.makedirs(save_folder, exist_ok=True)  # Ensure directory exists
+        test_file = os.path.join(save_folder, 'test.png')
         plt.savefig(test_file)
+        if original_df is not None:
+            joined_df = original_df.join(result_df)
+            result_csv = os.path.join(save_folder, 'predictions.csv')
+            joined_df.to_csv(result_csv, index=False)
+        else: 
+            result_csv = os.path.join(save_folder, 'predictions.csv')
+            result_df.to_csv(result_csv, index=False)
+        
     plt.clf()
+
 
 
 def train_lstm(model, epochs, train_dataloader, criterion, optimizer, save_folder="save_folder", device=None):
