@@ -7,6 +7,6 @@
     "lr": 0.0001,
     "HIDDEN_LAYER_SIZE": 100,
     "NUM_LAYERS": 5,
-    "TRAIN_TEST_SPLIT": 0.875,
+    "TRAIN_TEST_SPLIT": 0.5,
     "ROOT_FOLDER": "."
 }
