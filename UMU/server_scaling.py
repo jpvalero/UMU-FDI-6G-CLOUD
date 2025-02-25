@@ -90,8 +90,8 @@ actual_server_activations = manage_servers_fixed(actual_data, THRESHOLD)
 # Process predicted traffic data with adaptive threshold
 predicted_tracefile_path = "data/predictions.csv"
 predicted_data = load_tracefile(predicted_tracefile_path)
-# predicted_server_activations = manage_servers_adaptive(predicted_data)
-predicted_server_activations = manage_servers_fixed(predicted_data, THRESHOLD)
+predicted_server_activations = manage_servers_adaptive(predicted_data)
+# predicted_server_activations = manage_servers_fixed(predicted_data, THRESHOLD)
 
 
 # Plot the traffic data
