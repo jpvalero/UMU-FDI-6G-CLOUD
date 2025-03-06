@@ -1,5 +1,5 @@
 # UMU-FDI-6G-CLOUD
-This repository contains the files used for the 6G-CLOUD mid-term demonstrator.
+This repository contains the files used for the 6G-CLOUD mid-term demonstrator by FDI and UMU. 
 
 ## Title  
 AI-Driven Self-Healing Operations for Energy-Efficient Dynamic Server (De-)Activation 
