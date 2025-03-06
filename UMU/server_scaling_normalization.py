@@ -20,10 +20,6 @@ def load_tracefile(filepath):
     df = pd.read_csv(filepath)
     return df["flow"].values
 
-# Function to normalize data to percentage (simulating CPU usage)
-def normalize_to_percentage(data):
-    return 100 * (data - data.min()) / (data.max() - data.min())
-
 # Function to manage servers based on traffic with fixed threshold
 def manage_servers_fixed(actual_traffic, threshold):
     active_servers = 1  # Start with one server
@@ -66,7 +62,7 @@ def plot_traffic_data(actual_data, predicted_data):
     plt.plot(actual_data, label="Actual Traffic", color="blue")
     plt.plot(predicted_data, label="Predicted Traffic", color="red", linestyle="--")
     plt.xlabel("Steps")
-    plt.ylabel("CPU Usage (%)")
+    plt.ylabel("Traffic Flow")
     # plt.title("Actual vs Predicted Traffic")
     plt.legend()
     plt.grid()
@@ -89,13 +85,11 @@ def plot_server_activations(actual_activations, predicted_activations):
 actual_tracefile_path = "data/filtered_traffic_data.csv"
 actual_data = load_tracefile(actual_tracefile_path)
 actual_data = actual_data[994:len(actual_data)]      # 994 to the end to take half the data
-actual_data = normalize_to_percentage(actual_data)  # Normalize to percentage
 actual_server_activations = manage_servers_fixed(actual_data, THRESHOLD)
 
 # Process predicted traffic data with adaptive threshold
 predicted_tracefile_path = "data/predictions.csv"
 predicted_data = load_tracefile(predicted_tracefile_path)
-predicted_data = normalize_to_percentage(predicted_data)  # Normalize to percentage
 predicted_server_activations = manage_servers_adaptive(predicted_data)
 # predicted_server_activations = manage_servers_fixed(predicted_data, THRESHOLD)
 
@@ -141,15 +135,4 @@ plt.title("Adaptive Threshold Approach")
 plt.legend()
 plt.grid()
 plt.savefig(os.path.join(results_dir, "threshold_adaptation.pdf"), format="pdf")
-plt.show()
-
-
-plt.figure(figsize=(10, 6))
-plt.plot(actual_data, label="Actual Traffic", color="blue")
-plt.axhline(y=THRESHOLD, color="green", linestyle="--", label=f"Threshold ({THRESHOLD}%)")
-plt.xlabel("Steps")
-plt.ylabel("CPU Usage (%)")
-plt.legend()
-plt.grid()
-plt.savefig(os.path.join(results_dir, "traffic_with_threshold.pdf"), format="pdf")
 plt.show()

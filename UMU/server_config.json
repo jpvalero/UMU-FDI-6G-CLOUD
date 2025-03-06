@@ -1,5 +1,5 @@
 {
-    "THRESHOLD": 300,  
+    "THRESHOLD": 20,   
     "MAX_SERVERS": 20, 
     "POWER_SERVER": 20 
 }
